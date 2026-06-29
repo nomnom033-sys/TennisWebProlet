@@ -71,11 +71,11 @@ export default async function Home() {
               />
             </div>
             <div className="rounded-[28px] border border-foreground/[0.08] bg-card p-5 shadow-sm">
-              <div className="flex items-start gap-3">
-                <MapPin data-icon="inline-start" />
-                <div className="grid gap-4">
-                  {data.courts.map((court) => (
-                    <div key={court.id} className="grid gap-1">
+              <div className="grid gap-4">
+                {data.courts.map((court) => (
+                  <div key={court.id} className="flex items-start gap-3">
+                    <MapPin data-icon="inline-start" />
+                    <div className="grid gap-1">
                       <p className="font-medium">{court.name}</p>
                       <p className="text-sm text-muted-foreground">
                         {court.address}
@@ -92,8 +92,8 @@ export default async function Home() {
                         </a>
                       )}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

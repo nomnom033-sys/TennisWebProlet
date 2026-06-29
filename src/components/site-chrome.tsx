@@ -11,7 +11,6 @@ const navItems = [
   { label: "Документы", href: "/documents" },
   { label: "История", href: "/history" },
   { label: "Уход", href: "/maintenance" },
-  { label: "Сообщество", href: "/rules#community" },
 ];
 
 export function SiteHeader() {

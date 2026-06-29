@@ -1,4 +1,4 @@
-import { CommunitySection, RulesSection } from "@/components/info-sections";
+import { RulesSection } from "@/components/info-sections";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 
 export default function RulesPage() {
@@ -11,11 +11,10 @@ export default function RulesPage() {
             Правила записи
           </h1>
           <p className="mt-3 max-w-3xl text-lg leading-8 text-muted-foreground">
-            Общие публичные правила пользования кортами и ссылка на сообщество.
+            Общие публичные правила пользования кортами.
           </p>
         </section>
         <RulesSection />
-        <CommunitySection />
       </main>
       <SiteFooter />
     </div>
