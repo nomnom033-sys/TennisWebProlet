@@ -1,8 +1,8 @@
 "use client";
 
 import Script from "next/script";
-import { useActionState } from "react";
-import { CalendarPlus, CheckCircle2 } from "lucide-react";
+import { useActionState, useState } from "react";
+import { CalendarPlus, CheckCircle2, Clock3, Minus, Plus } from "lucide-react";
 
 import { createBookingAction, type BookingActionState } from "@/app/actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -11,6 +11,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  buildBookingSlot,
+  clampDurationMinutes,
+  formatDuration,
+  minutesBetweenLocalDateTimes,
+} from "@/features/bookings/slot-picker";
 import type { Court } from "@/lib/site-data";
 
 const initialState: BookingActionState = {
@@ -26,10 +32,10 @@ export function BookingForm({ courts }: { courts: Court[] }) {
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   return (
-    <Card id="booking" className="border-primary/10 shadow-sm">
+    <Card id="booking" className="rounded-[28px] border-foreground/10 shadow-sm">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <span className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <CalendarPlus data-icon="inline-start" />
           </span>
           <div>
@@ -60,16 +66,7 @@ export function BookingForm({ courts }: { courts: Court[] }) {
             </select>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="startAt">Начало</Label>
-              <Input id="startAt" name="startAt" type="datetime-local" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="endAt">Окончание</Label>
-              <Input id="endAt" name="endAt" type="datetime-local" required />
-            </div>
-          </div>
+          <BookingSlotPicker />
 
           <div className="grid gap-2">
             <Label htmlFor="playerName">Имя или ник</Label>
@@ -142,4 +139,183 @@ export function BookingForm({ courts }: { courts: Court[] }) {
       </CardContent>
     </Card>
   );
+}
+
+function BookingSlotPicker() {
+  const initialSlot = getInitialSlot();
+  const [date, setDate] = useState(initialSlot.date);
+  const [startTime, setStartTime] = useState(initialSlot.startTime);
+  const [durationMinutes, setDurationMinutes] = useState(90);
+  const durationMax = getMaxDurationForStart(startTime);
+  const safeDuration = Math.min(durationMax, clampDurationMinutes(durationMinutes));
+  const slot = buildBookingSlot({ date, startTime, durationMinutes: safeDuration });
+
+  function updateStartTime(value: string) {
+    setStartTime(value);
+    setDurationMinutes((current) =>
+      Math.min(getMaxDurationForStart(value), clampDurationMinutes(current)),
+    );
+  }
+
+  function updateEndTime(value: string) {
+    const nextDuration = minutesBetweenLocalDateTimes(
+      slot.startAt,
+      `${date}T${value}`,
+    );
+
+    setDurationMinutes(
+      Math.min(durationMax, clampDurationMinutes(nextDuration)),
+    );
+  }
+
+  return (
+    <div className="grid gap-3 rounded-2xl border border-foreground/10 bg-secondary/35 p-3">
+      <input type="hidden" name="startAt" value={slot.startAt} />
+      <input type="hidden" name="endAt" value={slot.endAt} />
+
+      <div className="grid gap-2">
+        <Label htmlFor="bookingDate">Дата</Label>
+        <Input
+          id="bookingDate"
+          type="date"
+          min={formatDateInput(new Date())}
+          max={formatDateInput(addDays(new Date(), 7))}
+          value={date}
+          onChange={(event) => setDate(event.target.value)}
+          onInput={(event) => setDate(event.currentTarget.value)}
+          required
+        />
+      </div>
+
+      <div className="grid gap-2">
+        <div className="grid grid-cols-[96px_1fr] items-center gap-3 rounded-xl border bg-card px-3 py-2">
+          <Label htmlFor="bookingStart" className="text-muted-foreground">
+            Начало
+          </Label>
+          <Input
+            id="bookingStart"
+            type="time"
+            step={300}
+            value={startTime}
+            onChange={(event) => updateStartTime(event.target.value)}
+            onInput={(event) => updateStartTime(event.currentTarget.value)}
+            required
+            className="h-9 border-0 bg-transparent px-0 text-right text-lg font-semibold shadow-none focus-visible:ring-0"
+          />
+        </div>
+      </div>
+
+      <div className="grid gap-3 rounded-xl border bg-card p-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="inline-flex items-center gap-2 text-sm font-medium">
+            <Clock3 data-icon="inline-start" />
+            Длительность
+          </div>
+          <output className="text-lg font-semibold tabular-nums">
+            {formatDuration(safeDuration)}
+          </output>
+        </div>
+        <input
+          type="range"
+          min={60}
+          max={durationMax}
+          step={5}
+          value={safeDuration}
+          onChange={(event) => setDurationMinutes(Number(event.target.value))}
+          onInput={(event) => setDurationMinutes(Number(event.currentTarget.value))}
+          className="duration-range"
+          aria-label="Длительность записи"
+        />
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>1 ч</span>
+          <span>{durationMax === 90 ? "1 ч 30 мин" : "2 ч"}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            aria-label="Уменьшить длительность на 5 минут"
+            onClick={() => setDurationMinutes(Math.max(60, safeDuration - 5))}
+            disabled={safeDuration <= 60}
+          >
+            <Minus data-icon="inline-start" />5 мин
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            aria-label="Увеличить длительность на 5 минут"
+            onClick={() =>
+              setDurationMinutes(Math.min(durationMax, safeDuration + 5))
+            }
+            disabled={safeDuration >= durationMax}
+          >
+            <Plus data-icon="inline-start" />5 мин
+          </Button>
+        </div>
+        {durationMax === 90 && (
+          <p className="text-xs leading-5 text-muted-foreground">
+            После 18:00 правила ограничивают запись 1 часом 30 минутами.
+          </p>
+        )}
+      </div>
+
+      <div className="grid grid-cols-[96px_1fr] items-center gap-3 rounded-xl border bg-card px-3 py-2">
+        <Label htmlFor="bookingEnd" className="text-muted-foreground">
+          Окончание
+        </Label>
+        <Input
+          id="bookingEnd"
+          type="time"
+          step={300}
+          value={slot.endTime}
+          onChange={(event) => updateEndTime(event.target.value)}
+          onInput={(event) => updateEndTime(event.currentTarget.value)}
+          required
+          className="h-9 border-0 bg-transparent px-0 text-right text-lg font-semibold shadow-none focus-visible:ring-0"
+        />
+      </div>
+    </div>
+  );
+}
+
+function getInitialSlot() {
+  const now = new Date();
+  now.setMinutes(Math.ceil(now.getMinutes() / 30) * 30, 0, 0);
+
+  if (now.getHours() >= 22) {
+    now.setDate(now.getDate() + 1);
+    now.setHours(9, 0, 0, 0);
+  }
+
+  return {
+    date: formatDateInput(now),
+    startTime: formatTimeInput(now),
+  };
+}
+
+function getMaxDurationForStart(startTime: string) {
+  const hour = Number(startTime.slice(0, 2));
+  return hour >= 18 ? 90 : 120;
+}
+
+function addDays(value: Date, days: number) {
+  const next = new Date(value);
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function formatDateInput(value: Date) {
+  return [
+    value.getFullYear(),
+    pad2(value.getMonth() + 1),
+    pad2(value.getDate()),
+  ].join("-");
+}
+
+function formatTimeInput(value: Date) {
+  return `${pad2(value.getHours())}:${pad2(value.getMinutes())}`;
+}
+
+function pad2(value: number) {
+  return String(value).padStart(2, "0");
 }

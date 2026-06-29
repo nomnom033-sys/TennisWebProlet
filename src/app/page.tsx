@@ -35,27 +35,27 @@ export default async function Home() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f8faf7_0%,#ffffff_42%,#f6f8f7_100%)]">
-      <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 border-b border-foreground/[0.06] bg-background/95 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <a href="#" className="flex items-center gap-3">
-            <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <span className="flex size-9 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
               T
             </span>
-            <span className="font-medium">Теннис на Пролетарской</span>
+            <span className="text-base font-bold">Теннис на Пролетарской</span>
           </a>
           <nav className="hidden items-center gap-1 lg:flex">
             {navItems.map(([label, href]) => (
               <a
                 key={href}
                 href={href}
-                className="rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="rounded-md px-3 py-2 text-sm font-medium text-foreground/75 hover:bg-muted hover:text-foreground"
               >
                 {label}
               </a>
             ))}
           </nav>
-          <Button render={<a href="#booking" />}>
+          <Button render={<a href="#booking" />} nativeButton={false}>
             Записаться
             <ArrowRight data-icon="inline-end" />
           </Button>
@@ -63,8 +63,8 @@ export default async function Home() {
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-12">
-          <div className="flex flex-col justify-center gap-7">
+        <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-16">
+          <div className="flex flex-col justify-center gap-7 rounded-[32px] border border-foreground/[0.06] bg-card p-6 shadow-sm sm:p-8 lg:p-10">
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary">Муниципальные корты</Badge>
               <Badge variant="outline">
@@ -72,30 +72,30 @@ export default async function Home() {
               </Badge>
             </div>
             <div className="grid gap-4">
-              <h1 className="max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">
+              <h1 className="max-w-3xl text-5xl font-black leading-[0.98] sm:text-6xl lg:text-7xl">
                 Теннис на Пролетарской
               </h1>
-              <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
+              <p className="max-w-2xl text-xl leading-9 text-muted-foreground">
                 Публичный сайт городских кортов и локального теннисного
                 сообщества: расписание, электронная очередь, правила, документы
                 проекта и история взаимодействия с администрацией.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button render={<a href="#booking" />} size="lg">
+              <Button render={<a href="#booking" />} nativeButton={false} size="lg">
                 Создать запись
                 <ArrowRight data-icon="inline-end" />
               </Button>
-              <Button render={<a href="#rules" />} variant="outline" size="lg">
+              <Button render={<a href="#rules" />} nativeButton={false} variant="outline" size="lg">
                 Правила записи
               </Button>
             </div>
-            <div className="grid gap-3 rounded-xl border bg-card p-4 text-sm shadow-sm sm:grid-cols-3">
+            <div className="grid gap-3 rounded-2xl border border-foreground/[0.08] bg-muted/35 p-4 text-sm sm:grid-cols-3">
               <Metric label="Сейчас" value={String(currentCount)} />
               <Metric label="Запланировано" value={String(plannedCount)} />
               <Metric label="Кортов в расписании" value={String(data.courts.length)} />
             </div>
-            <div className="flex items-start gap-3 rounded-xl border bg-card p-4 text-sm text-muted-foreground">
+            <div className="flex items-start gap-3 rounded-2xl border border-primary/15 bg-secondary/70 p-4 text-sm text-muted-foreground">
               <ShieldCheck data-icon="inline-start" />
               <p>
                 Запись на сайте — это электронная форма живой очереди. Она
@@ -106,17 +106,17 @@ export default async function Home() {
           </div>
 
           <div className="grid gap-4">
-            <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+            <div className="overflow-hidden rounded-[32px] border border-foreground/[0.08] bg-card shadow-sm">
               <Image
                 src="/hero-courts.png"
                 alt="Муниципальные теннисные корты у жилого района"
                 width={1536}
                 height={864}
                 priority
-                className="aspect-[4/3] w-full object-cover sm:aspect-[16/10]"
+                className="aspect-[5/4] w-full object-cover object-center lg:aspect-[4/5]"
               />
             </div>
-            <div className="rounded-xl border bg-card p-4 shadow-sm">
+            <div className="rounded-[28px] border border-foreground/[0.08] bg-card p-5 shadow-sm">
               <div className="flex items-start gap-3">
                 <MapPin data-icon="inline-start" />
                 <div className="grid gap-1">
@@ -141,7 +141,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+        <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
           <ScheduleBoard bookings={data.bookings} />
           <BookingForm courts={data.courts} />
         </section>
