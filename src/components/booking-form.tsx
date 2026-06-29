@@ -124,6 +124,21 @@ export function BookingForm({ courts }: { courts: Court[] }) {
               <AlertTitle>{state.ok ? "Готово" : "Нужно исправить"}</AlertTitle>
               <AlertDescription>
                 <p>{state.message}</p>
+                {state.cancelUrl && (
+                  <div className="mt-3 grid gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+                    <a
+                      href={state.cancelUrl}
+                      className="break-all font-semibold text-destructive underline underline-offset-4"
+                    >
+                      {state.cancelUrl}
+                    </a>
+                    <p className="text-xs leading-5 text-muted-foreground">
+                      Ссылка удаления одноразовая. Сохраните её сразу: после
+                      перехода и отмены брони повторно использовать ссылку
+                      нельзя.
+                    </p>
+                  </div>
+                )}
                 {state.issues && state.issues.length > 0 && (
                   <ul className="mt-2 list-disc pl-5">
                     {state.issues.map((issue) => (

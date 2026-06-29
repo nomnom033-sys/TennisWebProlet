@@ -36,19 +36,19 @@ export function RulesSection() {
       </CardHeader>
       <CardContent>
         <div className="grid overflow-hidden rounded-[28px] border border-foreground/10 bg-card lg:grid-cols-4">
-          <RuleStep index="01" title="формат">
+          <RuleStep index="01" title="Формат">
             Дата `ДД.ММ`, день недели, время `1500-1630`, корт отдельной
             строкой. Без причин, пояснений и редактирования старых записей.
           </RuleStep>
-          <RuleStep index="02" title="ограничения">
+          <RuleStep index="02" title="Ограничения">
             Не дальше 7 суток. До 18:00 до 2 часов, после 18:00 до 1,5 часов.
             Не больше 2 активных записей на игрока.
           </RuleStep>
-          <RuleStep index="03" title="отмена">
-            Напишите `Отмена` и полностью повторите исходную запись. Причины и
-            поиск партнёров переносятся в основной чат.
+          <RuleStep index="03" title="Отмена">
+            Воспользуйтесь уникальной ссылкой для удаления записи, если хотите
+            отменить бронь.
           </RuleStep>
-          <RuleStep index="04" title="электронная очередь">
+          <RuleStep index="04" title="Электронная очередь">
             Запись помогает планировать, но не создаёт дополнительных прав на
             муниципальный корт и не заменяет живую вежливую договорённость.
           </RuleStep>
@@ -129,7 +129,7 @@ export function MaintenanceSection({
 
 export function CommunitySection() {
   return (
-    <Card id="community" className="shadow-sm">
+    <Card id="community" className="scroll-mt-28 rounded-[28px] shadow-sm">
       <CardHeader>
         <div className="flex items-center gap-3">
           <span className="flex size-10 items-center justify-center rounded-lg bg-secondary">

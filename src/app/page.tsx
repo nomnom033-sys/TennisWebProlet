@@ -2,7 +2,6 @@ import Image from "next/image";
 import { ArrowRight, ExternalLink, MapPin, ShieldCheck } from "lucide-react";
 
 import { BookingForm } from "@/components/booking-form";
-import { CommunitySection, RulesSection } from "@/components/info-sections";
 import { ScheduleBoard } from "@/components/schedule-board";
 import { Button } from "@/components/ui/button";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
@@ -12,7 +11,6 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const data = await getPublicSiteData();
-  const primaryCourt = data.courts.find((court) => court.isPrimary) ?? data.courts[0];
   const currentCount = data.bookings.filter(
     (booking) => booking.computedStatus === "current",
   ).length;
@@ -28,7 +26,7 @@ export default async function Home() {
         <section className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8 lg:py-10">
           <div className="flex min-w-0 flex-col justify-center gap-6 rounded-[32px] border border-foreground/[0.06] bg-card p-6 shadow-sm sm:p-8 lg:p-10">
             <div className="grid gap-4">
-              <h1 className="max-w-3xl text-4xl font-extrabold leading-[0.98] sm:text-6xl lg:text-7xl">
+              <h1 className="max-w-3xl text-balance text-4xl font-extrabold leading-[0.98] sm:text-6xl lg:text-7xl">
                 Теннис на Пролетарской
               </h1>
               <p className="max-w-2xl text-xl leading-9 text-muted-foreground">
@@ -42,7 +40,7 @@ export default async function Home() {
                 Создать запись
                 <ArrowRight data-icon="inline-end" />
               </Button>
-              <Button render={<a href="#rules" />} nativeButton={false} variant="outline" size="lg">
+              <Button render={<a href="/rules" />} nativeButton={false} variant="outline" size="lg">
                 Правила записи
               </Button>
             </div>
@@ -75,36 +73,35 @@ export default async function Home() {
             <div className="rounded-[28px] border border-foreground/[0.08] bg-card p-5 shadow-sm">
               <div className="flex items-start gap-3">
                 <MapPin data-icon="inline-start" />
-                <div className="grid gap-1">
-                  <p className="font-medium">{primaryCourt?.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {primaryCourt?.address}
-                  </p>
-                  {primaryCourt?.mapUrl && (
-                    <a
-                      href={primaryCourt.mapUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex w-fit items-center gap-1 text-sm font-medium"
-                    >
-                      Открыть на Яндекс.Картах
-                      <ExternalLink data-icon="inline-end" />
-                    </a>
-                  )}
+                <div className="grid gap-4">
+                  {data.courts.map((court) => (
+                    <div key={court.id} className="grid gap-1">
+                      <p className="font-medium">{court.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {court.address}
+                      </p>
+                      {court.mapUrl && (
+                        <a
+                          href={court.mapUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex w-fit items-center gap-1 text-sm font-medium"
+                        >
+                          Открыть на Яндекс.Картах
+                          <ExternalLink data-icon="inline-end" />
+                        </a>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+        <section className="mx-auto grid max-w-7xl gap-8 px-4 pb-12 sm:px-6 lg:grid-cols-[1.08fr_0.92fr] lg:px-8">
           <ScheduleBoard bookings={data.bookings} />
           <BookingForm courts={data.courts} />
-        </section>
-
-        <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 sm:px-6 lg:px-8">
-          <RulesSection />
-          <CommunitySection />
         </section>
       </main>
       <SiteFooter />

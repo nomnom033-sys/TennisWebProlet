@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { planBooking, type CourtId } from "@/features/bookings/domain";
+import { buildCancelUrl } from "@/features/bookings/cancel-url";
 import { parseBookingFormData } from "@/features/bookings/schema";
 import {
   notifyTelegramBookingCancelled,
@@ -21,6 +22,7 @@ export type BookingActionState = {
   ok: boolean;
   message: string;
   issues?: string[];
+  cancelUrl?: string;
 };
 
 export async function createBookingAction(
@@ -97,6 +99,12 @@ export async function createBookingAction(
 
   const notification = await notifyTelegramBookingCreated(result.booking);
   const cancelToken = createCancelToken();
+  const cancelUrl = buildCancelUrl({
+    token: cancelToken,
+    siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+    vercelProjectProductionUrl: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    vercelUrl: process.env.VERCEL_URL,
+  });
 
   const { data: insertedBooking, error } = await supabase.from("bookings").insert({
     court_id: court.id,
@@ -135,7 +143,8 @@ export async function createBookingAction(
     message:
       notification.status === "failed"
         ? "Запись сохранена, но Telegram-уведомление нужно повторить из админки."
-        : `Запись сохранена. Ссылка для отмены: /cancel/${cancelToken}`,
+        : "Запись сохранена. Сохраните одноразовую ссылку для отмены брони.",
+    cancelUrl,
     issues: result.warnings.map((issue) => issue.message),
   };
 }

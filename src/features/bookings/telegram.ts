@@ -28,7 +28,6 @@ export async function notifyTelegramBookingCreated(
     "",
     `Игрок: ${booking.playerName}`,
     booking.telegramUsername ? `Telegram: @${booking.telegramUsername}` : null,
-    booking.needsAdminReview ? "Пометка: проверить вручную" : null,
   ]
     .filter(Boolean)
     .join("\n");

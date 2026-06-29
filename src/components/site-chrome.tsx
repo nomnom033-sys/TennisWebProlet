@@ -7,11 +7,11 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { label: "Записаться", href: "/#booking", kind: "primary" },
   { label: "Расписание", href: "/#schedule" },
-  { label: "Правила", href: "/#rules" },
+  { label: "Правила", href: "/rules" },
   { label: "Документы", href: "/documents" },
   { label: "История", href: "/history" },
   { label: "Уход", href: "/maintenance" },
-  { label: "Сообщество", href: "/#community" },
+  { label: "Сообщество", href: "/rules#community" },
 ];
 
 export function SiteHeader() {
