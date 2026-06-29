@@ -11,6 +11,7 @@ import {
 import { createCancelToken, hashCancelToken } from "@/features/bookings/tokens";
 import { verifyTurnstileToken } from "@/features/security/turnstile";
 import { getCurrentAdmin } from "@/lib/admin-auth";
+import { buildAdminAuthRedirectUrl } from "@/lib/auth-redirect";
 import { isSupabaseServiceConfigured } from "@/lib/env";
 import { seedBookings } from "@/lib/site-data";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -222,9 +223,7 @@ export async function requestAdminMagicLinkAction(formData: FormData) {
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/admin`
-        : undefined,
+      emailRedirectTo: buildAdminAuthRedirectUrl(process.env.NEXT_PUBLIC_SITE_URL),
     },
   });
 
