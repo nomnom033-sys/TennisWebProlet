@@ -46,3 +46,7 @@ supabase/.temp/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# project source; overrides a global lib/ ignore on this machine
+!src/lib/
+!src/lib/**
