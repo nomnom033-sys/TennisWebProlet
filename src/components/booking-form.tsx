@@ -32,7 +32,10 @@ export function BookingForm({ courts }: { courts: Court[] }) {
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   return (
-    <Card id="booking" className="rounded-[28px] border-foreground/10 shadow-sm">
+    <Card
+      id="booking"
+      className="scroll-mt-28 rounded-[28px] border-foreground/10 shadow-sm"
+    >
       <CardHeader>
         <div className="flex items-center gap-3">
           <span className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
@@ -69,7 +72,7 @@ export function BookingForm({ courts }: { courts: Court[] }) {
           <BookingSlotPicker />
 
           <div className="grid gap-2">
-            <Label htmlFor="playerName">Имя или ник</Label>
+            <Label htmlFor="playerName">Имя</Label>
             <Input
               id="playerName"
               name="playerName"
@@ -187,8 +190,8 @@ function BookingSlotPicker() {
         />
       </div>
 
-      <div className="grid gap-2">
-        <div className="grid grid-cols-[96px_1fr] items-center gap-3 rounded-xl border bg-card px-3 py-2">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-[88px_1fr] items-center gap-3 rounded-xl border bg-card px-3 py-2">
           <Label htmlFor="bookingStart" className="text-muted-foreground">
             Начало
           </Label>
@@ -199,6 +202,22 @@ function BookingSlotPicker() {
             value={startTime}
             onChange={(event) => updateStartTime(event.target.value)}
             onInput={(event) => updateStartTime(event.currentTarget.value)}
+            required
+            className="h-9 border-0 bg-transparent px-0 text-right text-lg font-semibold shadow-none focus-visible:ring-0"
+          />
+        </div>
+
+        <div className="grid grid-cols-[104px_1fr] items-center gap-3 rounded-xl border bg-card px-3 py-2">
+          <Label htmlFor="bookingEnd" className="text-muted-foreground">
+            Окончание
+          </Label>
+          <Input
+            id="bookingEnd"
+            type="time"
+            step={300}
+            value={slot.endTime}
+            onChange={(event) => updateEndTime(event.target.value)}
+            onInput={(event) => updateEndTime(event.currentTarget.value)}
             required
             className="h-9 border-0 bg-transparent px-0 text-right text-lg font-semibold shadow-none focus-visible:ring-0"
           />
@@ -259,21 +278,6 @@ function BookingSlotPicker() {
         )}
       </div>
 
-      <div className="grid grid-cols-[96px_1fr] items-center gap-3 rounded-xl border bg-card px-3 py-2">
-        <Label htmlFor="bookingEnd" className="text-muted-foreground">
-          Окончание
-        </Label>
-        <Input
-          id="bookingEnd"
-          type="time"
-          step={300}
-          value={slot.endTime}
-          onChange={(event) => updateEndTime(event.target.value)}
-          onInput={(event) => updateEndTime(event.currentTarget.value)}
-          required
-          className="h-9 border-0 bg-transparent px-0 text-right text-lg font-semibold shadow-none focus-visible:ring-0"
-        />
-      </div>
     </div>
   );
 }

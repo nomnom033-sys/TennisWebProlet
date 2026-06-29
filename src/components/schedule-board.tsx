@@ -17,7 +17,7 @@ export function ScheduleBoard({ bookings }: { bookings: PublicBooking[] }) {
   };
 
   return (
-    <Card id="schedule" className="shadow-sm">
+    <Card id="schedule" className="scroll-mt-28 rounded-[28px] shadow-sm">
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
