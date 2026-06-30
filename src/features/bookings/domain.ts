@@ -121,11 +121,15 @@ export function planBooking({
     }
   }
 
-  const identityMatchCount = countActiveIdentityMatches(existingBookings, {
-    playerName,
-    telegramUsername,
-    phone,
-  });
+  const identityMatchCount = countActiveIdentityMatches(
+    existingBookings,
+    {
+      playerName,
+      telegramUsername,
+      phone,
+    },
+    now,
+  );
 
   if (identityMatchCount >= 2) {
     const issue = {
@@ -237,9 +241,17 @@ function countActiveIdentityMatches(
     telegramUsername?: string;
     phone?: string;
   },
+  at: Date,
 ) {
   return bookings.filter((booking) => {
-    if (booking.status === "cancelled" || booking.status === "played") {
+    const computedStatus = classifyBookingStatus({
+      status: booking.status,
+      startAt: booking.startAt,
+      endAt: booking.endAt,
+      at,
+    });
+
+    if (computedStatus === "cancelled" || computedStatus === "played") {
       return false;
     }
 

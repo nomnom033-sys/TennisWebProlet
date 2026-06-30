@@ -12,6 +12,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  classifyBookingStatus,
+  type BookingStatus,
+} from "@/features/bookings/domain";
 import { formatDisplayTime } from "@/features/bookings/format";
 import { getCurrentAdmin } from "@/lib/admin-auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -23,7 +27,7 @@ type AdminBookingRow = {
   court: { slug: string; name: string } | { slug: string; name: string }[] | null;
   start_at: string;
   end_at: string;
-  status: "planned" | "current" | "played" | "cancelled";
+  status: BookingStatus;
   player_name: string;
   telegram_username: string | null;
   phone: string | null;
@@ -72,6 +76,7 @@ export default async function AdminPage() {
         .order("start_at", { ascending: false })
         .limit(100)
     : { data: null, error: { message: "Supabase service env не настроен." } };
+  const statusComputedAt = new Date();
 
   return (
     <main className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -125,53 +130,67 @@ export default async function AdminPage() {
           )}
           {!error && bookings && bookings.length > 0 && (
             <div className="grid gap-3">
-              {(bookings as AdminBookingRow[]).map((booking) => (
-                <article
-                  key={booking.id}
-                  className="grid gap-4 rounded-lg border p-4 lg:grid-cols-[1fr_auto]"
-                >
-                  <div className="grid gap-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge>{statusLabel(booking.status)}</Badge>
-                      {booking.needs_admin_review && (
-                        <Badge variant="destructive">
-                          <AlertTriangle data-icon="inline-start" />
-                          проверить
+              {(bookings as AdminBookingRow[]).map((booking) => {
+                const computedStatus = classifyBookingStatus({
+                  status: booking.status,
+                  startAt: booking.start_at,
+                  endAt: booking.end_at,
+                  at: statusComputedAt,
+                });
+
+                return (
+                  <article
+                    key={booking.id}
+                    className="grid gap-4 rounded-lg border p-4 lg:grid-cols-[1fr_auto]"
+                  >
+                    <div className="grid gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge>{statusLabel(computedStatus)}</Badge>
+                        {booking.needs_admin_review && (
+                          <Badge variant="destructive">
+                            <AlertTriangle data-icon="inline-start" />
+                            проверить
+                          </Badge>
+                        )}
+                        <Badge variant="outline">
+                          Telegram: {booking.notification_status}
                         </Badge>
+                      </div>
+                      <div>
+                        <h2 className="font-medium">{booking.player_name}</h2>
+                        <p className="text-sm text-muted-foreground">
+                          {courtLabel(booking.court)} ·{" "}
+                          {formatDisplayTime(booking.start_at, booking.end_at)} ·{" "}
+                          {new Intl.DateTimeFormat("ru-RU", {
+                            dateStyle: "medium",
+                            timeZone: "Europe/Moscow",
+                          }).format(new Date(booking.start_at))}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                        {booking.telegram_username && (
+                          <span>@{booking.telegram_username}</span>
+                        )}
+                        {booking.phone && <span>{booking.phone}</span>}
+                        {booking.phone_public && <span>телефон публичный</span>}
+                      </div>
+                    </div>
+                    {computedStatus !== "cancelled" &&
+                      computedStatus !== "played" && (
+                        <form action={adminCancelBookingFormAction}>
+                          <input
+                            type="hidden"
+                            name="bookingId"
+                            value={booking.id}
+                          />
+                          <Button type="submit" variant="destructive">
+                            Отменить
+                          </Button>
+                        </form>
                       )}
-                      <Badge variant="outline">
-                        Telegram: {booking.notification_status}
-                      </Badge>
-                    </div>
-                    <div>
-                      <h2 className="font-medium">{booking.player_name}</h2>
-                      <p className="text-sm text-muted-foreground">
-                        {courtLabel(booking.court)} ·{" "}
-                        {formatDisplayTime(booking.start_at, booking.end_at)} ·{" "}
-                        {new Intl.DateTimeFormat("ru-RU", {
-                          dateStyle: "medium",
-                          timeZone: "Europe/Moscow",
-                        }).format(new Date(booking.start_at))}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                      {booking.telegram_username && (
-                        <span>@{booking.telegram_username}</span>
-                      )}
-                      {booking.phone && <span>{booking.phone}</span>}
-                      {booking.phone_public && <span>телефон публичный</span>}
-                    </div>
-                  </div>
-                  {booking.status !== "cancelled" && (
-                    <form action={adminCancelBookingFormAction}>
-                      <input type="hidden" name="bookingId" value={booking.id} />
-                      <Button type="submit" variant="destructive">
-                        Отменить
-                      </Button>
-                    </form>
-                  )}
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           )}
         </CardContent>
@@ -196,7 +215,7 @@ export default async function AdminPage() {
   );
 }
 
-function statusLabel(status: AdminBookingRow["status"]) {
+function statusLabel(status: BookingStatus) {
   return {
     planned: "Запланировано",
     current: "Сейчас",

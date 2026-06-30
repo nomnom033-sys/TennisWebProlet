@@ -186,6 +186,42 @@ describe("planBooking", () => {
     );
   });
 
+  it("does not count already played bookings as active identity matches", () => {
+    const result = planBooking({
+      now: new Date("2026-06-30T15:00:00+03:00"),
+      existingBookings: [
+        {
+          id: "booking-1",
+          courtId: "proletarsky",
+          startAt: "2026-06-29T10:00:00+03:00",
+          endAt: "2026-06-29T12:00:00+03:00",
+          status: "planned",
+          playerName: "Даниил",
+          telegramUsername: "danil_tennis",
+        },
+        {
+          id: "booking-2",
+          courtId: "obukhovo",
+          startAt: "2026-06-30T09:00:00+03:00",
+          endAt: "2026-06-30T10:00:00+03:00",
+          status: "planned",
+          playerName: "Даниил",
+          telegramUsername: "danil_tennis",
+        },
+      ],
+      input: {
+        courtId: "proletarsky",
+        startAt: "2026-07-01T10:00:00+03:00",
+        endAt: "2026-07-01T12:00:00+03:00",
+        playerName: "Даниил",
+        telegramUsername: "@danil_tennis",
+        phonePublic: false,
+      },
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
   it("classifies active bookings into current, planned, played, and cancelled", () => {
     const at = new Date("2026-06-28T11:00:00+03:00");
 
