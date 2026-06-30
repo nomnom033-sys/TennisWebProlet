@@ -35,6 +35,42 @@ describe("planBooking", () => {
     expect(result.booking.publicContact).toBe("@danil_tennis");
   });
 
+  it("accepts bookings on the seventh calendar day inclusively", () => {
+    const result = planBooking({
+      now: new Date("2026-06-30T09:00:00+03:00"),
+      existingBookings: [],
+      input: {
+        courtId: "proletarsky",
+        startAt: "2026-07-07T16:00:00+03:00",
+        endAt: "2026-07-07T17:30:00+03:00",
+        playerName: "Даниил",
+        phonePublic: false,
+      },
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects bookings after the seventh calendar day", () => {
+    const result = planBooking({
+      now: new Date("2026-06-30T09:00:00+03:00"),
+      existingBookings: [],
+      input: {
+        courtId: "proletarsky",
+        startAt: "2026-07-08T09:00:00+03:00",
+        endAt: "2026-07-08T10:00:00+03:00",
+        playerName: "Даниил",
+        phonePublic: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.map((issue) => issue.code)).toContain(
+      "outside_booking_window",
+    );
+  });
+
   it("rejects missing names, overlaps, distant dates, and slots longer than the rules allow", () => {
     const existingBookings = [
       {

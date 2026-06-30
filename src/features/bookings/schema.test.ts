@@ -42,7 +42,7 @@ describe("parseBookingFormData", () => {
     expect(result.issues).toEqual(
       expect.arrayContaining([
         "Выберите корректный корт.",
-        "Укажите имя или ник, который будет виден в расписании.",
+        "Укажите имя, которое будет видно в расписании.",
       ]),
     );
   });

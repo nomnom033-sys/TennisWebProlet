@@ -53,8 +53,8 @@ type PlanBookingArgs = {
   input: BookingInput;
 };
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const BOOKING_WINDOW_DAYS = 7;
+const BOOKING_TIME_ZONE = "Europe/Moscow";
 const EVENING_HOUR = 18;
 
 export function planBooking({
@@ -74,7 +74,7 @@ export function planBooking({
   if (!playerName) {
     issues.push({
       code: "missing_player_name",
-      message: "Укажите имя или ник, который будет виден в расписании.",
+      message: "Укажите имя, которое будет видно в расписании.",
     });
   }
 
@@ -85,10 +85,10 @@ export function planBooking({
     });
   }
 
-  if (isValidDate(startAt) && startAt.getTime() - now.getTime() > BOOKING_WINDOW_DAYS * MS_PER_DAY) {
+  if (isValidDate(startAt) && isAfterBookingWindow(input.startAt, now)) {
     issues.push({
       code: "outside_booking_window",
-      message: "Запись доступна не дальше чем на 7 суток вперёд.",
+      message: "Запись доступна на 7 календарных дней вперёд включительно.",
     });
   }
 
@@ -188,6 +188,37 @@ export function classifyBookingStatus({
 
 function isValidDate(value: Date) {
   return !Number.isNaN(value.getTime());
+}
+
+function isAfterBookingWindow(startAt: string, now: Date) {
+  const startDate = startAt.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+  if (!startDate) return false;
+
+  return (
+    startDate >
+    addDaysToDateKey(formatDateInBookingTimeZone(now), BOOKING_WINDOW_DAYS)
+  );
+}
+
+function formatDateInBookingTimeZone(value: Date) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: BOOKING_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(value);
+
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+
+  return `${year}-${month}-${day}`;
+}
+
+function addDaysToDateKey(dateKey: string, days: number) {
+  const next = new Date(`${dateKey}T00:00:00.000Z`);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next.toISOString().slice(0, 10);
 }
 
 function intervalsOverlap(

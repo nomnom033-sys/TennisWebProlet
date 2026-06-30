@@ -1,7 +1,14 @@
 "use client";
 
 import Script from "next/script";
-import { useActionState, useState } from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { CalendarPlus, CheckCircle2, Clock3, Minus, Plus } from "lucide-react";
 
 import { createBookingAction, type BookingActionState } from "@/app/actions";
@@ -17,6 +24,11 @@ import {
   formatDuration,
   minutesBetweenLocalDateTimes,
 } from "@/features/bookings/slot-picker";
+import {
+  readStoredCancelLink,
+  saveStoredCancelLink,
+  type StoredCancelLink,
+} from "@/features/bookings/cancel-link-storage";
 import type { Court } from "@/lib/site-data";
 
 const initialState: BookingActionState = {
@@ -24,12 +36,44 @@ const initialState: BookingActionState = {
   message: "",
 };
 
+const STORED_CANCEL_LINK_EVENT = "prolettennis:cancel-link-change";
+
 export function BookingForm({ courts }: { courts: Court[] }) {
   const [state, formAction, pending] = useActionState(
     createBookingAction,
     initialState,
   );
+  const storedCancelLink = useStoredCancelLink();
+  const feedbackRef = useRef<HTMLDivElement>(null);
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+  useEffect(() => {
+    if (!state.cancelUrl) return;
+
+    saveStoredCancelLink(window.localStorage, state.cancelUrl);
+    window.dispatchEvent(new Event(STORED_CANCEL_LINK_EVENT));
+  }, [state.cancelUrl]);
+
+  useEffect(() => {
+    if (!state.message) return;
+
+    feedbackRef.current?.scrollIntoView({
+      block: "center",
+      behavior: "smooth",
+    });
+
+    const turnstile = (
+      window as typeof window & {
+        turnstile?: { reset: () => void };
+      }
+    ).turnstile;
+
+    try {
+      turnstile?.reset();
+    } catch {
+      // Turnstile can throw on localhost/domain mismatch; the next widget pass still issues a fresh token.
+    }
+  }, [state]);
 
   return (
     <Card
@@ -104,25 +148,16 @@ export function BookingForm({ courts }: { courts: Court[] }) {
             </span>
           </label>
 
-          {turnstileSiteKey && (
-            <div className="overflow-hidden rounded-lg border bg-muted/30 p-3">
-              <Script
-                src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-                strategy="afterInteractive"
-              />
-              <div
-                className="cf-turnstile"
-                data-sitekey={turnstileSiteKey}
-                data-theme="light"
-              />
-            </div>
-          )}
-
           {state.message && (
-            <Alert variant={state.ok ? "default" : "destructive"}>
+            <Alert
+              ref={feedbackRef}
+              variant={state.ok ? "default" : "destructive"}
+              className="scroll-mt-28"
+              aria-live="polite"
+            >
               <CheckCircle2 />
               <AlertTitle>{state.ok ? "Готово" : "Нужно исправить"}</AlertTitle>
-              <AlertDescription>
+              <AlertDescription className="text-pretty">
                 <p>{state.message}</p>
                 {state.cancelUrl && (
                   <div className="mt-3 grid gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
@@ -150,6 +185,40 @@ export function BookingForm({ courts }: { courts: Court[] }) {
             </Alert>
           )}
 
+          {storedCancelLink && !state.cancelUrl && (
+            <Alert className="border-destructive/30 bg-destructive/5">
+              <AlertTitle className="text-destructive">
+                Последняя ссылка отмены с этого браузера
+              </AlertTitle>
+              <AlertDescription className="grid gap-2 text-pretty">
+                <a
+                  href={storedCancelLink.cancelUrl}
+                  className="break-all font-semibold text-destructive underline underline-offset-4"
+                >
+                  {storedCancelLink.cancelUrl}
+                </a>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  Ссылка одноразовая и хранится только на этом устройстве в этом
+                  браузере. Если бронь уже отменили, ссылка больше не сработает.
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {turnstileSiteKey && (
+            <div className="max-w-full overflow-hidden rounded-lg border bg-muted/30 p-3">
+              <Script
+                src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                strategy="afterInteractive"
+              />
+              <div
+                className="cf-turnstile"
+                data-sitekey={turnstileSiteKey}
+                data-theme="light"
+              />
+            </div>
+          )}
+
           <Button type="submit" disabled={pending} className="w-full sm:w-fit">
             {pending ? "Проверяем..." : "Создать запись"}
           </Button>
@@ -157,6 +226,45 @@ export function BookingForm({ courts }: { courts: Court[] }) {
       </CardContent>
     </Card>
   );
+}
+
+function useStoredCancelLink() {
+  const snapshot = useSyncExternalStore(
+    subscribeStoredCancelLink,
+    getStoredCancelLinkSnapshot,
+    getServerStoredCancelLinkSnapshot,
+  );
+
+  return useMemo(() => parseStoredCancelLinkSnapshot(snapshot), [snapshot]);
+}
+
+function subscribeStoredCancelLink(onStoreChange: () => void) {
+  const listener = () => onStoreChange();
+
+  window.addEventListener("storage", listener);
+  window.addEventListener(STORED_CANCEL_LINK_EVENT, listener);
+
+  return () => {
+    window.removeEventListener("storage", listener);
+    window.removeEventListener(STORED_CANCEL_LINK_EVENT, listener);
+  };
+}
+
+function getStoredCancelLinkSnapshot() {
+  return JSON.stringify(readStoredCancelLink(window.localStorage));
+}
+
+function getServerStoredCancelLinkSnapshot() {
+  return "null";
+}
+
+function parseStoredCancelLinkSnapshot(snapshot: string): StoredCancelLink | null {
+  try {
+    const value = JSON.parse(snapshot) as StoredCancelLink | null;
+    return value?.cancelUrl ? value : null;
+  } catch {
+    return null;
+  }
 }
 
 function BookingSlotPicker() {

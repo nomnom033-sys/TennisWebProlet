@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
+import { courts } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -10,7 +11,7 @@ const navItems = [
   { label: "Правила", href: "/rules" },
   { label: "Документы", href: "/documents" },
   { label: "История", href: "/history" },
-  { label: "Уход", href: "/maintenance" },
+  { label: "Уход за кортом", href: "/maintenance" },
 ];
 
 export function SiteHeader() {
@@ -57,12 +58,34 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="border-t bg-background">
-      <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-muted-foreground sm:px-6 lg:px-8">
-        <p>Теннис на Пролетарской · общественная информация и расписание.</p>
-        <p>
-          Адресные формулировки и документы перед публикацией нужно проверить
-          по исходным материалам.
-        </p>
+      <div className="mx-auto grid max-w-7xl gap-5 px-4 py-8 text-sm text-muted-foreground sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8">
+        <div className="grid gap-2">
+          <p className="font-medium text-foreground">Теннис на Пролетарской</p>
+          <p>
+            Публичный сайт городских кортов и локального теннисного сообщества:
+            расписание, электронная очередь, правила записи и связь с
+            участниками.
+          </p>
+          <p>
+            Поддержка сайта:{" "}
+            <a
+              href="mailto:tennis-prolet@ya.ru"
+              className="font-medium text-foreground underline underline-offset-4"
+            >
+              tennis-prolet@ya.ru
+            </a>
+          </p>
+        </div>
+        <address className="grid gap-2 not-italic">
+          <p className="font-medium text-foreground">Адреса кортов</p>
+          {courts.map((court) => (
+            <p key={court.id}>
+              <span className="font-medium text-foreground">{court.name}</span>
+              <br />
+              {court.address}
+            </p>
+          ))}
+        </address>
       </div>
     </footer>
   );
