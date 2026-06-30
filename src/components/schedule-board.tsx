@@ -1,5 +1,6 @@
 import { CalendarDays, Clock, MapPin } from "lucide-react";
 
+import { BookingStatusRefresh } from "@/components/booking-status-refresh";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +19,7 @@ export function ScheduleBoard({ bookings }: { bookings: PublicBooking[] }) {
 
   return (
     <Card id="schedule" className="scroll-mt-28 rounded-[28px] shadow-sm">
+      <BookingStatusRefresh bookings={bookings} />
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
