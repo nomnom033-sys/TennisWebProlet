@@ -188,7 +188,7 @@ export function BookingForm({ courts }: { courts: Court[] }) {
           {storedCancelLink && !state.cancelUrl && (
             <Alert className="border-destructive/30 bg-destructive/5">
               <AlertTitle className="text-destructive">
-                Последняя ссылка отмены с этого браузера
+                Ссылка для отмены брони
               </AlertTitle>
               <AlertDescription className="grid gap-2 text-pretty">
                 <a

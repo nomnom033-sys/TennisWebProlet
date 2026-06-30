@@ -58,7 +58,7 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="border-t bg-background">
-      <div className="mx-auto grid max-w-7xl gap-5 px-4 py-8 text-sm text-muted-foreground sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-muted-foreground sm:px-6 lg:grid-cols-[1.1fr_0.82fr_0.88fr] lg:px-8">
         <div className="grid gap-2">
           <p className="font-medium text-foreground">Теннис на Пролетарской</p>
           <p>
@@ -86,6 +86,16 @@ export function SiteFooter() {
             </p>
           ))}
         </address>
+        <div className="grid content-start gap-2">
+          <p className="font-medium text-foreground">
+            Обработка персональных данных
+          </p>
+          <p>
+            Персональные данные игроков не сохраняются и не передаются третьим
+            лицам. Указывая личные данные вы подтверждаете согласие с обработкой
+            персональных данных.
+          </p>
+        </div>
       </div>
     </footer>
   );

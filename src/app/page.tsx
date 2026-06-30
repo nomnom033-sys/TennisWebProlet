@@ -47,7 +47,7 @@ export default async function Home() {
             <div className="grid gap-3 rounded-2xl border border-foreground/[0.08] bg-muted/35 p-4 text-sm sm:grid-cols-3">
               <Metric label="Сейчас" value={String(currentCount)} />
               <Metric label="Запланировано" value={String(plannedCount)} />
-              <Metric label="Кортов в расписании" value={String(data.courts.length)} />
+              <Metric label="Доступных корта" value={String(data.courts.length)} />
             </div>
             <div className="flex items-start gap-3 rounded-2xl border border-primary/15 bg-secondary/70 p-4 text-sm text-muted-foreground">
               <ShieldCheck data-icon="inline-start" />
