@@ -3,6 +3,10 @@ import { ArrowRight, ExternalLink, MapPin, ShieldCheck } from "lucide-react";
 
 import { BookingForm } from "@/components/booking-form";
 import { ScheduleBoard } from "@/components/schedule-board";
+import {
+  SectionScrollHandler,
+  SectionScrollLink,
+} from "@/components/section-scroll-link";
 import { Button } from "@/components/ui/button";
 import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 import { getPublicSiteData } from "@/lib/public-data";
@@ -20,6 +24,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SectionScrollHandler />
       <SiteHeader />
 
       <main>
@@ -36,7 +41,11 @@ export default async function Home() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button render={<a href="#booking" />} nativeButton={false} size="lg">
+              <Button
+                render={<SectionScrollLink sectionId="booking" />}
+                nativeButton={false}
+                size="lg"
+              >
                 Создать запись
                 <ArrowRight data-icon="inline-end" />
               </Button>

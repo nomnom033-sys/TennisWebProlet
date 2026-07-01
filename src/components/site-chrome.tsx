@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { SectionScrollLink } from "@/components/section-scroll-link";
 import { buttonVariants } from "@/components/ui/button";
 import { courts } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Записаться", href: "/#booking", kind: "primary" },
-  { label: "Расписание", href: "/#schedule" },
+  { label: "Записаться", href: "/", sectionId: "booking", kind: "primary" },
+  { label: "Расписание", href: "/", sectionId: "schedule" },
   { label: "Правила", href: "/rules" },
   { label: "Документы", href: "/documents" },
   { label: "История", href: "/history" },
   { label: "Уход за кортом", href: "/maintenance" },
-];
+] as const;
 
 export function SiteHeader() {
   return (
@@ -27,10 +28,10 @@ export function SiteHeader() {
 
         <nav className="order-2 flex w-full min-w-0 items-center gap-1 overflow-x-auto lg:order-none lg:w-auto lg:flex-1 lg:justify-end">
           {navItems.map((item) =>
-            item.kind === "primary" ? (
-              <Link
-                key={item.href}
-                href={item.href}
+            "kind" in item && item.kind === "primary" ? (
+              <SectionScrollLink
+                key={item.label}
+                sectionId={item.sectionId}
                 className={cn(
                   buttonVariants({ size: "sm" }),
                   "h-9 px-3 text-sm",
@@ -38,7 +39,15 @@ export function SiteHeader() {
               >
                 {item.label}
                 <ArrowRight data-icon="inline-end" />
-              </Link>
+              </SectionScrollLink>
+            ) : "sectionId" in item ? (
+              <SectionScrollLink
+                key={item.label}
+                sectionId={item.sectionId}
+                className="shrink-0 rounded-md px-3 py-2 text-sm font-medium text-foreground/75 hover:bg-muted hover:text-foreground"
+              >
+                {item.label}
+              </SectionScrollLink>
             ) : (
               <Link
                 key={item.href}

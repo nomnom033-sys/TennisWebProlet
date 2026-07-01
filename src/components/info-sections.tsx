@@ -173,12 +173,16 @@ function RuleStep({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative grid min-h-44 gap-3 border-b border-foreground/10 p-5 first:bg-secondary/60 last:border-b-0 lg:border-r lg:border-b-0 lg:last:border-r-0">
+    <div className="relative grid min-h-48 grid-rows-[auto_3.5rem_1fr] gap-3 border-b border-foreground/10 p-5 first:bg-secondary/60 last:border-b-0 lg:h-full lg:border-r lg:border-b-0 lg:last:border-r-0">
       <Badge className="w-fit rounded-full px-3" variant="secondary">
         {index}
       </Badge>
-      <h3 className="text-xl font-extrabold leading-tight">{title}</h3>
-      <p className="text-sm leading-6 text-muted-foreground">{children}</p>
+      <h3 className="flex items-start text-xl font-extrabold leading-tight">
+        {title}
+      </h3>
+      <p className="self-start text-sm leading-6 text-muted-foreground">
+        {children}
+      </p>
     </div>
   );
 }
