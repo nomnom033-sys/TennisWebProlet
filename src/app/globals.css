@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-golos-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -49,30 +49,30 @@
 }
 
 :root {
-  --background: oklch(0.995 0.004 145);
-  --foreground: oklch(0.18 0.015 155);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.22 0.03 248);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.22 0.03 248);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.33 0.08 152);
+  --popover-foreground: oklch(0.22 0.03 248);
+  --primary: oklch(0.29 0.1 150);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.94 0.025 160);
-  --secondary-foreground: oklch(0.25 0.05 152);
-  --muted: oklch(0.96 0.012 145);
-  --muted-foreground: oklch(0.48 0.02 155);
-  --accent: oklch(0.92 0.035 205);
-  --accent-foreground: oklch(0.24 0.045 205);
+  --secondary: oklch(0.96 0.018 145);
+  --secondary-foreground: oklch(0.29 0.1 150);
+  --muted: oklch(0.97 0.006 240);
+  --muted-foreground: oklch(0.5 0.025 250);
+  --accent: oklch(0.95 0.03 145);
+  --accent-foreground: oklch(0.29 0.1 150);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.88 0.015 150);
-  --input: oklch(0.88 0.015 150);
-  --ring: oklch(0.58 0.07 152);
+  --border: oklch(0.9 0.012 155);
+  --input: oklch(0.88 0.012 155);
+  --ring: oklch(0.43 0.11 150);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.5rem;
+  --radius: 0.25rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -126,5 +126,18 @@
   }
   html {
     @apply font-sans;
+    scroll-padding-top: 6.5rem;
+  }
+}
+
+@layer components {
+  .duration-range {
+    width: 100%;
+    accent-color: var(--primary);
+  }
+
+  .duration-range:focus-visible {
+    outline: 3px solid color-mix(in oklch, var(--ring), transparent 55%);
+    outline-offset: 4px;
   }
 }

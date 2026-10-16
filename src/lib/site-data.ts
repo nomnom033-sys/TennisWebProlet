@@ -42,9 +42,9 @@ export const courts: Court[] = [
   },
   {
     id: "obukhovo",
-    name: "Обухово",
-    address: "Санкт-Петербург, 2-й Рабфаковский пер., д. 1, корп. 4",
-    mapUrl: "https://yandex.ru/maps/org/tennisny_kort/110814866174",
+    name: "Обуховский",
+    address: "2-й Рабфаковский переулок, 1к1",
+    mapUrl: "https://yandex.ru/maps/-/CTa5YQm-",
     isPrimary: false,
   },
 ];

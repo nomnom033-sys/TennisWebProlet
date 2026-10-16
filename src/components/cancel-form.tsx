@@ -1,10 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
+import { useEffect } from "react";
 
 import { cancelBookingStateAction } from "@/app/actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { clearStoredCancelLink } from "@/features/bookings/cancel-link-storage";
 
 type CancelState = {
   ok: boolean;
@@ -16,11 +18,20 @@ const initialState: CancelState = {
   message: "",
 };
 
+const STORED_CANCEL_LINK_EVENT = "prolettennis:cancel-link-change";
+
 export function CancelForm({ token }: { token: string }) {
   const [state, formAction, pending] = useActionState(
     cancelBookingStateAction,
     initialState,
   );
+
+  useEffect(() => {
+    if (!state.ok) return;
+
+    clearStoredCancelLink(window.localStorage, window.location.href);
+    window.dispatchEvent(new Event(STORED_CANCEL_LINK_EVENT));
+  }, [state.ok]);
 
   return (
     <form action={formAction} className="grid gap-4">

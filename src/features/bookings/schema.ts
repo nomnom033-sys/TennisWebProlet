@@ -16,8 +16,8 @@ export const bookingFormSchema = z.object({
   playerName: z
     .string()
     .trim()
-    .min(1, "Укажите имя или ник, который будет виден в расписании.")
-    .max(80, "Имя или ник не должны быть длиннее 80 символов."),
+    .min(1, "Укажите имя, которое будет видно в расписании.")
+    .max(80, "Имя не должно быть длиннее 80 символов."),
   telegramUsername: optionalTrimmedString,
   phone: optionalTrimmedString,
   phonePublic: z.preprocess(

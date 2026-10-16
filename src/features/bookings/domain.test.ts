@@ -35,6 +35,42 @@ describe("planBooking", () => {
     expect(result.booking.publicContact).toBe("@danil_tennis");
   });
 
+  it("accepts bookings on the seventh calendar day inclusively", () => {
+    const result = planBooking({
+      now: new Date("2026-06-30T09:00:00+03:00"),
+      existingBookings: [],
+      input: {
+        courtId: "proletarsky",
+        startAt: "2026-07-07T16:00:00+03:00",
+        endAt: "2026-07-07T17:30:00+03:00",
+        playerName: "Даниил",
+        phonePublic: false,
+      },
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects bookings after the seventh calendar day", () => {
+    const result = planBooking({
+      now: new Date("2026-06-30T09:00:00+03:00"),
+      existingBookings: [],
+      input: {
+        courtId: "proletarsky",
+        startAt: "2026-07-08T09:00:00+03:00",
+        endAt: "2026-07-08T10:00:00+03:00",
+        playerName: "Даниил",
+        phonePublic: false,
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.map((issue) => issue.code)).toContain(
+      "outside_booking_window",
+    );
+  });
+
   it("rejects missing names, overlaps, distant dates, and slots longer than the rules allow", () => {
     const existingBookings = [
       {
@@ -148,6 +184,42 @@ describe("planBooking", () => {
     expect(softResult.warnings.map((issue) => issue.code)).toContain(
       "too_many_active_bookings",
     );
+  });
+
+  it("does not count already played bookings as active identity matches", () => {
+    const result = planBooking({
+      now: new Date("2026-06-30T15:00:00+03:00"),
+      existingBookings: [
+        {
+          id: "booking-1",
+          courtId: "proletarsky",
+          startAt: "2026-06-29T10:00:00+03:00",
+          endAt: "2026-06-29T12:00:00+03:00",
+          status: "planned",
+          playerName: "Даниил",
+          telegramUsername: "danil_tennis",
+        },
+        {
+          id: "booking-2",
+          courtId: "obukhovo",
+          startAt: "2026-06-30T09:00:00+03:00",
+          endAt: "2026-06-30T10:00:00+03:00",
+          status: "planned",
+          playerName: "Даниил",
+          telegramUsername: "danil_tennis",
+        },
+      ],
+      input: {
+        courtId: "proletarsky",
+        startAt: "2026-07-01T10:00:00+03:00",
+        endAt: "2026-07-01T12:00:00+03:00",
+        playerName: "Даниил",
+        telegramUsername: "@danil_tennis",
+        phonePublic: false,
+      },
+    });
+
+    expect(result.ok).toBe(true);
   });
 
   it("classifies active bookings into current, planned, played, and cancelled", () => {

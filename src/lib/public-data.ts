@@ -68,13 +68,15 @@ export async function getPublicSiteData(): Promise<PublicSiteData> {
   }
 
   return {
-    courts: (courtsResult.data ?? []).map((court) => ({
-      id: court.slug as CourtId,
-      name: court.name,
-      address: court.address,
-      mapUrl: court.map_url ?? "",
-      isPrimary: court.is_primary,
-    })),
+    courts: mergeKnownCourtDetails(
+      (courtsResult.data ?? []).map((court) => ({
+        id: court.slug as CourtId,
+        name: court.name,
+        address: court.address,
+        mapUrl: court.map_url ?? "",
+        isPrimary: court.is_primary,
+      })),
+    ),
     bookings: classifyBookings(
       (bookingsResult.data ?? []).map((booking) => ({
       id: booking.id,
@@ -114,6 +116,24 @@ export async function getPublicSiteData(): Promise<PublicSiteData> {
 
 function relationSlug(value: { slug: string } | { slug: string }[] | null) {
   return Array.isArray(value) ? value[0]?.slug : value?.slug;
+}
+
+function mergeKnownCourtDetails(sourceCourts: Court[]) {
+  const knownById = new Map(courts.map((court) => [court.id, court]));
+  const merged = sourceCourts.map((court) => ({
+    ...court,
+    ...(knownById.get(court.id) ?? {}),
+    isPrimary: court.isPrimary,
+  }));
+  const mergedIds = new Set(merged.map((court) => court.id));
+
+  for (const court of courts) {
+    if (!mergedIds.has(court.id)) {
+      merged.push(court);
+    }
+  }
+
+  return merged;
 }
 
 function classifyBookings(bookings: ExistingBooking[]): PublicBooking[] {
